@@ -1,0 +1,183 @@
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+}
+
+h2 {
+    border-left: 5px solid #3498db;
+    padding-left: 10px;
+    color: #2c3e50;
+    font-size: 1.2rem;
+    margin-top: 20px;
+}
+
+.instruction {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-bottom: 15px;
+}
+
+/* 設定セクション */
+.student-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    padding: 15px;
+    border-radius: 6px;
+    background: #f8fafc;
+}
+
+.student-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    background: white;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+}
+
+.gender-btn {
+    border: none;
+    padding: 2px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.gender-btn.male {
+    background-color: #e0f2fe;
+    color: #0284c7;
+}
+
+.gender-btn.female {
+    background-color: #fce7f3;
+    color: #db2777;
+}
+
+.student-item.disabled {
+    opacity: 0.4;
+    background-color: #f1f5f9;
+}
+
+/* 座席セクション */
+.pattern-selector {
+    margin-bottom: 15px;
+}
+
+.pattern-selector select {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+}
+
+.seat-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+.seat {
+    aspect-ratio: 1 / 1;
+    background-color: #f1f5f9;
+    border: 2px dashed #cbd5e1;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+}
+
+.seat:hover {
+    background-color: #e2e8f0;
+}
+
+.seat.empty-seat {
+    background-color: #334155;
+    border-color: #334155;
+    color: white;
+}
+
+.seat.empty-seat::after {
+    content: "空席";
+    font-size: 0.9rem;
+}
+
+.seat.assigned {
+    border-style: solid;
+}
+
+.seat.assigned.m {
+    background-color: #bae6fd;
+    border-color: #0284c7;
+    color: #0369a1;
+}
+
+.seat.assigned.f {
+    background-color: #fbcfe8;
+    border-color: #db2777;
+    color: #be185d;
+}
+
+.seat-num {
+    font-size: 1.2rem;
+}
+
+.seat-gender {
+    font-size: 0.7rem;
+    margin-top: 4px;
+    padding: 2px 6px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 10px;
+}
+
+/* ボタン */
+.action-section {
+    text-align: center;
+    margin-top: 30px;
+}
+
+#shuffle-btn {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+    transition: background 0.2s;
+}
+
+#shuffle-btn:hover {
+    background-color: #059669;
+}
