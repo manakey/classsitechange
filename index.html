@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>席替えツール</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>席替えツール (6×6)</h1>
+        
+        <div class="settings-section">
+            <h2>1. 名簿・出席設定</h2>
+            <p class="instruction">出席番号1〜34の性別を設定してください。欠席（除外）する番号はチェックを外します。</p>
+            <div id="student-settings" class="student-grid"></div>
+        </div>
+
+        <div class="seat-section">
+            <h2>2. 座席配置・空席設定</h2>
+            <p class="instruction">席をクリックすると「空席」に設定できます（最大2席）。男女交互の配置パターンも選べます。</p>
+            
+            <div class="pattern-selector">
+                <label>男女配置パターン: </label>
+                <select id="gender-pattern">
+                    <option value="ichimatsu-m">市松模様（左上: 男子）</option>
+                    <option value="ichimatsu-f">市松模様（左上: 女子）</option>
+                    <option value="stripe-v">縦縞（列ごとに男女交代）</option>
+                    <option value="stripe-h">横縞（行ごとに男女交代）</option>
+                </select>
+            </div>
+
+            <div id="seating-chart" class="seat-grid"></div>
+        </div>
+
+        <div class="action-section">
+            <button id="shuffle-btn">席替えを実行する</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
