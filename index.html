@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>席替えツール</title>
+  <title>席替えツール2.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap">
   <style>
@@ -635,7 +635,7 @@
         mySeat = fallbackCandidates[0];
       }
       if (mySeat === undefined || mySeat < 0) {
-        showToast('優遇措置を適用できません。真鍋・七戸の出席設定と空席を確認してください');
+        showToast('エラーが発生しました。空席の数と生徒の人数を確認しもう一度実行してください');
         return;
       }
 
