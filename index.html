@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>席替えツール</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap">
+  <style>
+    :root {
+      --bg:        #f5f7fa;
+      --surface:   #ffffff;
+      --surface2:  #f8fafc;
+      --border:    #e2e8f0;
+      --border2:   #cbd5e1;
+      --fg:        #1e293b;
+      --fg2:       #64748b;
+      --fg3:       #94a3b8;
+      --male-bg:   #dbeafe;
+      --male-bdr:  #2563eb;
+      --male-fg:   #1d4ed8;
+      --female-bg: #fce7f3;
+      --female-bdr:#db2777;
+      --female-fg: #be185d;
+      --accent:    #10b981;
+      --accent-h:  #059669;
+      --seat-empty:#334155;
+      --radius:    8px;
+      --shadow:    0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:        #0f172a;
+        --surface:   #1e293b;
+        --surface2:  #162032;
+        --border:    #334155;
+        --border2:   #475569;
+        --fg:        #f1f5f9;
+        --fg2:       #94a3b8;
+        --fg3:       #64748b;
+        --male-bg:   #1e3a5f;
+        --male-bdr:  #3b82f6;
+        --male-fg:   #93c5fd;
+        --female-bg: #4a1535;
+        --female-bdr:#ec4899;
+        --female-fg: #f9a8d4;
+        --accent:    #10b981;
+        --accent-h:  #34d399;
+        --seat-empty:#475569;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      margin: 0;
+      padding: 24px 16px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px 28px 36px;
+    }
+
+    /* ── header ── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--fg);
+      letter-spacing: -0.01em;
+    }
+    .page-header h1 span { color: var(--accent); }
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ── section titles ── */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--fg);
+      margin: 0 0 10px;
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .section-hint {
+      font-size: 0.82rem;
+      color: var(--fg2);
+      margin: 0 0 14px;
+    }
+
+    /* ── student grid ── */
+    #student-settings {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 8px;
+      max-height: 320px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: var(--radius);
+      background: var(--surface2);
+    }
+    .student-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--surface);
+      padding: 5px 7px;
+      border-radius: 6px;
+      border: 1px solid var(--border2);
+      transition: opacity .15s;
+    }
+    .student-item.disabled { opacity: 0.38; }
+    .student-item input[type="checkbox"] {
+      flex-shrink: 0;
+      accent-color: var(--accent);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+    .student-id {
+      flex-shrink: 0;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--fg2);
+      min-width: 26px;
+      font-variant-numeric: tabular-nums;
+    }
+    .student-name-input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.82rem;
+      color: var(--fg);
+      padding: 2px 4px;
+      border-radius: 4px;
+      outline: none;
+      transition: background .15s;
+    }
+    .student-name-input:focus {
+      background: var(--surface2);
+      outline: 1.5px solid var(--accent);
+    }
+    .student-name-input::placeholder { color: var(--fg3); }
+    .gender-btn {
+      flex-shrink: 0;
+      border: none;
+      padding: 2px 5px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 700;
+      transition: opacity .15s;
+      line-height: 1.4;
+    }
+    .gender-btn.male   { background: var(--male-bg);   color: var(--male-fg);   }
+    .gender-btn.female { background: var(--female-bg); color: var(--female-fg); }
+    .gender-btn:hover  { opacity: .8; }
+
+    /* ── divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    /* ── pattern selector ── */
+    .pattern-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .pattern-selector label { font-size: 0.85rem; color: var(--fg2); }
+    .pattern-selector select {
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid var(--border2);
+      background: var(--surface);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    /* ── seat grid ── */
+    .seat-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin: 0 auto 24px;
+      max-width: 620px;
+    }
+    .seat {
+      aspect-ratio: 1/1;
+      background: var(--surface2);
+      border: 2px dashed var(--border2);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+      text-align: center;
+      padding: 3px;
+      overflow: hidden;
+    }
+    .seat:hover { background: var(--border); }
+    .seat.empty-seat {
+      background: var(--seat-empty);
+      border-color: var(--seat-empty);
+    }
+    .seat.empty-seat::after {
+      content: "空席";
+      font-size: 0.78rem;
+      color: #fff;
+      opacity: .7;
+    }
+    .seat.assigned { border-style: solid; cursor: default; }
+    .seat.assigned.m { background: var(--male-bg);   border-color: var(--male-bdr);   color: var(--male-fg); }
+    .seat.assigned.f { background: var(--female-bg); border-color: var(--female-bdr); color: var(--female-fg); }
+    .seat-num    { font-size: 0.72rem; font-weight: 700; font-variant-numeric: tabular-nums; opacity: .7; line-height: 1; }
+    .seat-name   { font-size: 0.82rem; font-weight: 700; line-height: 1.2; margin-top: 2px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .seat-gender { font-size: 0.65rem; margin-top: 3px; padding: 1px 5px; background: rgba(255,255,255,0.4); border-radius: 8px; line-height: 1.3; }
+
+    /* ── action ── */
+    .action-section { text-align: center; margin-top: 8px; }
+    #shuffle-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 13px 44px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 7px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(16,185,129,0.25);
+      transition: background .2s, transform .1s;
+      font-family: inherit;
+    }
+    #shuffle-btn:hover  { background: var(--accent-h); }
+    #shuffle-btn:active { transform: scale(.97); }
+
+    /* ── buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: opacity .15s, background .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-outline {
+      background: var(--surface);
+      border-color: var(--border2);
+      color: var(--fg);
+    }
+    .btn-import {
+      background: var(--surface);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    #import-file { display: none; }
+
+    /* ── toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--seat-empty);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s, transform .25s;
+      white-space: nowrap;
+      z-index: 100;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── responsive ── */
+    @media (max-width: 600px) {
+      .container { padding: 18px 14px 28px; }
+      .seat-grid { gap: 6px; }
+      #student-settings { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="page-header">
+      <h1>席替えツール <span>6×6</span></h1>
+      <div class="header-actions">
+        <button class="btn btn-import" id="import-btn">↑ インポート</button>
+        <input type="file" id="import-file" accept=".json">
+        <button class="btn btn-outline" id="dl-json-btn">↓ JSON</button>
+        <button class="btn btn-outline" id="dl-csv-btn">↓ CSV</button>
+      </div>
+    </div>
+
+    <p class="section-title"><span class="step-badge">1</span> 名簿・出席設定</p>
+    <p class="section-hint">各番号に名前を入力できます。性別ボタンをクリックで切替。チェックを外すと除外されます。</p>
+    <div id="student-settings"></div>
+
+    <hr class="divider">
+
+    <p class="section-title"><span class="step-badge">2</span> 座席配置・空席設定</p>
+    <p class="section-hint">席をクリックすると「空席」に設定できます（出席人数に合わせて自動計算）。</p>
+
+    <div class="pattern-selector">
+      <label for="gender-pattern">男女配置パターン：</label>
+      <select id="gender-pattern">
+        <option value="ichimatsu-m">市松模様（左上: 男子）</option>
+        <option value="ichimatsu-f">市松模様（左上: 女子）</option>
+        <option value="stripe-v">縦縞（列ごとに男女交代）</option>
+        <option value="stripe-h">横縞（行ごとに男女交代）</option>
+      </select>
+    </div>
+
+    <div id="seating-chart" class="seat-grid"></div>
+
+    <div class="action-section">
+      <button id="shuffle-btn">🔀 席替えを実行する</button>
+    </div>
+
+  </div>
+  <div id="toast"></div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const TOTAL_SEATS  = 36;
+    const MAX_STUDENTS = 34;
+
+    let students = [];
+    for (let i = 1; i <= MAX_STUDENTS; i++) {
+      students.push({ id: i, name: '', gender: i % 2 === 1 ? 'm' : 'f', isPresent: true });
+    }
+    let emptySeats = new Set([34, 35]);
+
+    const settingsDiv         = document.getElementById('student-settings');
+    const seatingChartDiv     = document.getElementById('seating-chart');
+    const genderPatternSelect = document.getElementById('gender-pattern');
+    const shuffleBtn          = document.getElementById('shuffle-btn');
+    const importBtn           = document.getElementById('import-btn');
+    const importFile          = document.getElementById('import-file');
+    const dlJsonBtn           = document.getElementById('dl-json-btn');
+    const dlCsvBtn            = document.getElementById('dl-csv-btn');
+    const toastEl             = document.getElementById('toast');
+
+    // ── toast ──
+    let toastTimer;
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2500);
+    }
+
+    // ── 名簿UIレンダリング ──
+    function renderStudentSettings() {
+      settingsDiv.innerHTML = '';
+      students.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'student-item' + (s.isPresent ? '' : ' disabled');
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = s.isPresent;
+        cb.addEventListener('change', () => {
+          s.isPresent = cb.checked;
+          item.classList.toggle('disabled', !cb.checked);
+        });
+
+        const idSpan = document.createElement('span');
+        idSpan.className = 'student-id';
+        idSpan.textContent = s.id;
+
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.className = 'student-name-input';
+        nameInput.placeholder = '名前';
+        nameInput.value = s.name || '';
+        nameInput.maxLength = 10;
+        nameInput.addEventListener('input', () => { s.name = nameInput.value.trim(); });
+
+        const genderBtn = document.createElement('button');
+        genderBtn.className = 'gender-btn ' + (s.gender === 'm' ? 'male' : 'female');
+        genderBtn.textContent = s.gender === 'm' ? '男' : '女';
+        genderBtn.addEventListener('click', e => {
+          e.preventDefault();
+          s.gender = s.gender === 'm' ? 'f' : 'm';
+          genderBtn.className = 'gender-btn ' + (s.gender === 'm' ? 'male' : 'female');
+          genderBtn.textContent = s.gender === 'm' ? '男' : '女';
+        });
+
+        item.append(cb, idSpan, nameInput, genderBtn);
+        settingsDiv.appendChild(item);
+      });
+    }
+
+    // ── 座席盤面レンダリング ──
+    function renderSeatingChart() {
+      seatingChartDiv.innerHTML = '';
+      for (let i = 0; i < TOTAL_SEATS; i++) {
+        const seat = document.createElement('div');
+        seat.className = 'seat' + (emptySeats.has(i) ? ' empty-seat' : '');
+        seat.dataset.index = i;
+        seat.addEventListener('click', () => {
+          if (seat.classList.contains('assigned')) return;
+          if (emptySeats.has(i)) {
+            emptySeats.delete(i);
+            seat.classList.remove('empty-seat');
+          } else {
+            const active = students.filter(s => s.isPresent).length;
+            const maxEmpty = TOTAL_SEATS - active;
+            if (emptySeats.size >= maxEmpty) {
+              showToast('空席は最大 ' + maxEmpty + ' 箇所までです');
+              return;
+            }
+            emptySeats.add(i);
+            seat.classList.add('empty-seat');
+          }
+        });
+        seatingChartDiv.appendChild(seat);
+      }
+    }
+
+    // ── 性別パターン判定 ──
+    function getExpectedGender(index, pattern) {
+      const row = Math.floor(index / 6), col = index % 6;
+      switch (pattern) {
+        case 'ichimatsu-m': return (row + col) % 2 === 0 ? 'm' : 'f';
+        case 'ichimatsu-f': return (row + col) % 2 === 0 ? 'f' : 'm';
+        case 'stripe-v':    return col % 2 === 0 ? 'm' : 'f';
+        case 'stripe-h':    return row % 2 === 0 ? 'm' : 'f';
+        default:            return 'm';
+      }
+    }
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function assignStudentToSeat(seatEl, student) {
+      seatEl.classList.add('assigned', student.gender);
+      const numSpan = document.createElement('span');
+      numSpan.className = 'seat-num';
+      numSpan.textContent = student.id + '番';
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'seat-name';
+      nameSpan.textContent = student.name || '—';
+      const genderSpan = document.createElement('span');
+      genderSpan.className = 'seat-gender';
+      genderSpan.textContent = student.gender === 'm' ? '男子' : '女子';
+      seatEl.append(numSpan, nameSpan, genderSpan);
+    }
+
+    // ── 席替えロジック ──
+    function shuffleSeats() {
+      const active  = students.filter(s => s.isPresent);
+      const males   = shuffleArray(active.filter(s => s.gender === 'm'));
+      const females = shuffleArray(active.filter(s => s.gender === 'f'));
+      const pattern = genderPatternSelect.value;
+      const seats   = seatingChartDiv.children;
+
+      for (let i = 0; i < TOTAL_SEATS; i++) {
+        seats[i].innerHTML = '';
+        seats[i].className = 'seat' + (emptySeats.has(i) ? ' empty-seat' : '');
+      }
+      for (let i = 0; i < TOTAL_SEATS; i++) {
+        if (emptySeats.has(i)) continue;
+        const tg = getExpectedGender(i, pattern);
+        let chosen = null;
+        if (tg === 'm' && males.length > 0)        chosen = males.shift();
+        else if (tg === 'f' && females.length > 0) chosen = females.shift();
+        if (chosen) assignStudentToSeat(seats[i], chosen);
+        else        seats[i].dataset.pending = 'true';
+      }
+      const leftover = [...males, ...females];
+      for (let i = 0; i < TOTAL_SEATS; i++) {
+        if (seats[i].dataset.pending === 'true') {
+          delete seats[i].dataset.pending;
+          if (leftover.length > 0) assignStudentToSeat(seats[i], leftover.shift());
+        }
+      }
+    }
+
+    // ── エクスポート ──
+    function downloadFile(content, filename, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    dlJsonBtn.addEventListener('click', () => {
+      const data = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        students: students.map(s => ({
+          id: s.id, name: s.name || '', gender: s.gender, isPresent: s.isPresent
+        }))
+      };
+      downloadFile(JSON.stringify(data, null, 2), 'meibo.json', 'application/json');
+      showToast('JSONをダウンロードしました');
+    });
+
+    dlCsvBtn.addEventListener('click', () => {
+      const header = '出席番号,名前,性別,出席\n';
+      const rows   = students.map(s =>
+        s.id + ',' + (s.name || '').replace(/,/g, '、') + ',' + (s.gender === 'm' ? '男' : '女') + ',' + (s.isPresent ? '1' : '0')
+      ).join('\n');
+      downloadFile('﻿' + header + rows, 'meibo.csv', 'text/csv;charset=utf-8;');
+      showToast('CSVをダウンロードしました');
+    });
+
+    // ── インポート ──
+    importBtn.addEventListener('click', () => importFile.click());
+
+    importFile.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (!data.students || !Array.isArray(data.students)) throw new Error('形式が正しくありません');
+          data.students.forEach(imported => {
+            const s = students.find(x => x.id === imported.id);
+            if (!s) return;
+            if (typeof imported.name      === 'string')              s.name      = imported.name;
+            if (imported.gender === 'm' || imported.gender === 'f')  s.gender    = imported.gender;
+            if (typeof imported.isPresent === 'boolean')             s.isPresent = imported.isPresent;
+          });
+          renderStudentSettings();
+          showToast('インポートしました ✓');
+        } catch (err) {
+          showToast('読み込みエラー: ' + err.message);
+        }
+        importFile.value = '';
+      };
+      reader.readAsText(file, 'utf-8');
+    });
+
+    // ── 初期化 ──
+    shuffleBtn.addEventListener('click', shuffleSeats);
+    renderStudentSettings();
+    renderSeatingChart();
+  });
+  </script>
+</body>
+</html>
